@@ -66,7 +66,7 @@ def buscandoRepositorios():
         info_paginacao = dados_resposta['data']['search']['pageInfo']
         cursor_paginacao = info_paginacao["endCursor"] if info_paginacao["hasNextPage"] else None
 
-        print(f"({len(todos_repositorios)}/{total_repositorios} repositórios coletados)")
+        print(f"{len(todos_repositorios)}/{total_repositorios} repositórios coletados")
 
         time.sleep(1)
 
