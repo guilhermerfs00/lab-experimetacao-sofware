@@ -5,32 +5,32 @@ import time
 from dotenv import load_dotenv
 
 load_dotenv()
-token = os.getenv("GITHUB_TOKEN")
+github_token = os.getenv("GITHUB_TOKEN")
 
-if not token:
+if not github_token:
     raise ValueError("Token do GitHub não encontrado. Verifique o arquivo .env.")
 
 GITHUB_GRAPHQL_URL = "https://api.github.com/graphql"
 
 headers = {
-    "Authorization": f"Bearer {token}",
+    "Authorization": f"Bearer {github_token}",
     "Content-Type": "application/json"
 }
 
 
-def fetchRepositories():
-    allRepos   = []
-    cursor     = None
-    totalRepos = 1000
-    batchSize  = 1
-    numBatches = totalRepos // batchSize
+def buscandoRepositorios():
+    todos_repositorios = []
+    cursor_paginacao   = None
+    total_repositorios = 1000
+    tamanho_lote       = 5
+    total_lotes        = total_repositorios // tamanho_lote
 
-    for batch in range(numBatches):
-        print(f"Buscando repositórios... (Chamada {batch + 1}/{numBatches})")
+    for indice_lote in range(total_lotes):
+        print(f"Buscando repositórios... (Chamada {indice_lote + 1}/{total_lotes})")
 
         query = f"""
         {{
-          search(query: "stars:>10000 sort:stars", type: REPOSITORY, first: {batchSize}, after: {json.dumps(cursor) if cursor else "null"}) {{
+          search(query: "stars:>10000 sort:stars", type: REPOSITORY, first: {tamanho_lote}, after: {json.dumps(cursor_paginacao) if cursor_paginacao else "null"}) {{
             edges {{
               node {{
                 ... on Repository {{
@@ -55,50 +55,22 @@ def fetchRepositories():
         }}
         """
 
-        for attempt in range(3):
-            response = requests.post(
-                GITHUB_GRAPHQL_URL,
-                json={"query": query},
-                headers=headers,
-                timeout=30
-            )
+        resposta = requests.post(
+            GITHUB_GRAPHQL_URL,
+            json={"query": query},
+            headers=headers,
+            timeout=30
+        )
 
-            if response.status_code == 200:
-                data = response.json()
+        dados_resposta = resposta.json()
+        repositorios_lote = dados_resposta['data']['search']['edges']
+        todos_repositorios.extend(repositorios_lote)
 
-                if "errors" in data:
-                    print(f"Erro GraphQL: {data['errors']}")
-                    time.sleep(5)
-                    continue
+        info_paginacao = dados_resposta['data']['search']['pageInfo']
+        cursor_paginacao = info_paginacao["endCursor"] if info_paginacao["hasNextPage"] else None
 
-                repositories = data['data']['search']['edges']
+        print(f"({len(todos_repositorios)}/{total_repositorios} repositórios coletados)")
 
-                if not repositories:
-                    print("Nenhum repositório encontrado nesta chamada.")
-                    break
+        time.sleep(1)
 
-                allRepos.extend(repositories)
-
-                pageInfo = data['data']['search']['pageInfo']
-                cursor = pageInfo["endCursor"] if pageInfo["hasNextPage"] else None
-
-                print(f"Chamada {batch + 1}/{numBatches} concluída. ({len(allRepos)}/{totalRepos} repositórios coletados)")
-
-                if not pageInfo["hasNextPage"]:
-                    print("Sem mais páginas disponíveis.")
-                    return allRepos
-
-                time.sleep(1)
-                break
-
-            elif response.status_code == 403:
-                print(f"Rate limit atingido. Aguardando 60 segundos... (Tentativa {attempt + 1}/3)")
-                time.sleep(60)
-            else:
-                print(f"Erro {response.status_code}: {response.text}. Tentativa {attempt + 1}/3...")
-                time.sleep(5)
-        else:
-            print(f"Falha na chamada {batch + 1} após 3 tentativas. Abortando.")
-            break
-
-    return allRepos
+    return todos_repositorios
