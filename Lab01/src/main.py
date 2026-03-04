@@ -5,11 +5,11 @@ from service.data_service import processarDados, salvarResultados, gerarGraficos
 
 if __name__ == "__main__":
     repositorios = buscandoRepositorios()
-    dados = processarDados(repositorios)
+    dataframe_repositorios = processarDados(repositorios)
 
     pd.set_option("display.max_rows", None)
     pd.set_option("display.max_columns", None)
     pd.set_option("display.width", 200)
 
-    salvarResultados(dados)
-    gerarGraficos(dados)
+    salvarResultados(dataframe_repositorios)
+    gerarGraficos(dataframe_repositorios)

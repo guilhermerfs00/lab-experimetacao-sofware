@@ -17,7 +17,6 @@ headers = {
     "Content-Type": "application/json"
 }
 
-
 def buscandoRepositorios():
     todos_repositorios = []
     cursor_paginacao   = None
