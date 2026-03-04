@@ -25,8 +25,6 @@ def buscandoRepositorios():
     total_lotes        = total_repositorios // tamanho_lote
 
     for indice_lote in range(total_lotes):
-        print(f"Buscando repositórios... (Chamada {indice_lote + 1}/{total_lotes})")
-
         query = f"""
         {{
           search(query: "stars:>10000 sort:stars", type: REPOSITORY, first: {tamanho_lote}, after: {json.dumps(cursor_paginacao) if cursor_paginacao else "null"}) {{
