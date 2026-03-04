@@ -46,11 +46,11 @@ def processarDados(repositorios):
     return pd.DataFrame(lista_repos)
 
 
-def salvarResultados(dataframe_repositorios):
+def salvarResultados(dados_repositorios):
     salvador = CsvResultados(DIRETORIO_SAIDA)
-    salvador.salvar(dataframe_repositorios)
+    salvador.salvar(dados_repositorios)
 
 
-def gerarGraficos(dataframe_repositorios):
+def gerarGraficos(dados_repositorios):
     gerador = GeradorGraficos(DIRETORIO_SAIDA)
-    gerador.gerar(dataframe_repositorios)
+    gerador.gerar(dados_repositorios)

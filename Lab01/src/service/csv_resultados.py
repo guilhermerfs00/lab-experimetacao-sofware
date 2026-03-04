@@ -6,8 +6,8 @@ class CsvResultados:
         self.diretorio_saida = diretorio_saida
         os.makedirs(self.diretorio_saida, exist_ok=True)
 
-    def salvar(self, dataframe_repositorios):
+    def salvar(self, dados_repositorios):
         caminho_csv = os.path.join(self.diretorio_saida, "repositorios.csv")
-        dataframe_repositorios.to_csv(caminho_csv, index=False, encoding="utf-8-sig")
+        dados_repositorios.to_csv(caminho_csv, index=False, encoding="utf-8-sig")
         print(f"\nDados salvos em: {caminho_csv}")
 
