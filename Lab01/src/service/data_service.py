@@ -11,7 +11,7 @@ os.makedirs(DIRETORIO_SAIDA, exist_ok=True)
 DATA_HORA_ATUAL = datetime.now(timezone.utc)
 
 
-def processarDados(repositorios):
+def processar_dados(repositorios):
     lista_repos = []
 
     for repositorio in repositorios:
@@ -46,11 +46,11 @@ def processarDados(repositorios):
     return pd.DataFrame(lista_repos)
 
 
-def salvarResultados(dados_repositorios):
+def salvar_resultados(dados_repositorios):
     salvador = CsvResultados(DIRETORIO_SAIDA)
     salvador.salvar(dados_repositorios)
 
 
-def gerarGraficos(dados_repositorios):
+def gerar_graficos(dados_repositorios):
     gerador = GeradorGraficos(DIRETORIO_SAIDA)
     gerador.gerar(dados_repositorios)

@@ -6,10 +6,6 @@ from dotenv import load_dotenv
 
 load_dotenv()
 github_token = os.getenv("GITHUB_TOKEN")
-
-if not github_token:
-    raise ValueError("Token do GitHub não encontrado. Verifique o arquivo .env.")
-
 GITHUB_GRAPHQL_URL = "https://api.github.com/graphql"
 
 headers = {
@@ -17,11 +13,11 @@ headers = {
     "Content-Type": "application/json"
 }
 
-def buscandoRepositorios():
+def buscar_repositorios():
     todos_repositorios = []
     cursor_paginacao   = None
     total_repositorios = 1000
-    tamanho_lote       = 5
+    tamanho_lote       = 3
     total_lotes        = total_repositorios // tamanho_lote
 
     for indice_lote in range(total_lotes):
