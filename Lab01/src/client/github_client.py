@@ -22,7 +22,7 @@ def fetchRepositories():
     allRepos   = []
     cursor     = None
     totalRepos = 1000
-    batchSize  = 25
+    batchSize  = 1
     numBatches = totalRepos // batchSize
 
     for batch in range(numBatches):
