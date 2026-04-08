@@ -3,7 +3,6 @@
   <component name="VcsDirectoryMappings">
     <mapping directory="" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/Lab02/workdir/clones/Android-PickerView" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/Lab02/workdir/clones/CoreNLP" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/Lab02/workdir/clones/FlycoTabLayout" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/Lab02/workdir/clones/Java" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/Lab02/workdir/clones/Java-WebSocket" vcs="Git" />

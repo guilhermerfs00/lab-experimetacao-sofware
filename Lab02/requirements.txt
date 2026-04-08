@@ -5,6 +5,7 @@ python-dotenv==1.0.1
 requests==2.32.3
 urllib3==2.3.0
 pandas~=2.2.3
+numpy>=1.26.0
 matplotlib~=3.10.1
 GitPython~=3.1.44
 pygount~=1.6.1

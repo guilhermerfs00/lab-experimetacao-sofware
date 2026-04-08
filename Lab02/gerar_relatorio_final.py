@@ -78,7 +78,17 @@ def load_dataframe(html_path: Path) -> pd.DataFrame:
     if not html_path.exists():
         raise FileNotFoundError(f"Arquivo de entrada não encontrado: {html_path}")
 
-    df = pd.read_html(html_path)[0]
+    tables = pd.read_html(html_path)
+    # O HTML aprimorado contém 3 tabelas: resumo estatístico, Spearman e dados.
+    # A tabela de dados é a última/maior com 11 colunas.
+    df = None
+    for tbl in reversed(tables):
+        if len(tbl.columns) == len(COLUMN_NAMES):
+            df = tbl
+            break
+    if df is None:
+        # Fallback: usar a primeira tabela (formato antigo).
+        df = tables[0]
     df.columns = COLUMN_NAMES
     df["Idade"] = df["Idade"].astype(str).str.replace(" anos", "", regex=False).astype(float)
     for column in ["Estrelas", "Pull Requests Aceitos", "Releases", "Linhas de Codigo", "Linhas de Comentario", "CBO", "DIT", "LCOM"]:
@@ -437,10 +447,11 @@ def build_docx(
         doc.add_picture(buffer, width=Inches(6.7))
 
     _add_docx_heading(doc, "3.6 Correlações calculadas", 2)
+    n_complete = df[['CBO','DIT','LCOM']].dropna().shape[0]
     _add_docx_paragraph(
         doc,
-        "A tabela a seguir resume os testes de Spearman aplicados. O tamanho amostral é 214 para cada relação, "
-        "porque 15 repositórios não possuem todas as métricas do CK completas no HTML disponível.",
+        f"A tabela a seguir resume os testes de Spearman aplicados. O tamanho amostral disponível é {n_complete} "
+        f"repositórios com CK completo, de um total de {len(df)} na amostra.",
     )
     corr_df = pd.DataFrame(
         [

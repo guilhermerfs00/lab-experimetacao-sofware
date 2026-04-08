@@ -5,16 +5,23 @@ from pathlib import Path
 
 import pandas as pd
 
-def run_ck(repo_path, output_path, ck_dir):
+# JVM flags configuráveis via variável de ambiente.
+_DEFAULT_JVM_FLAGS = "-Xmx4g -XX:+UseG1GC -XX:+ParallelRefProcEnabled"
+CK_JVM_FLAGS = os.environ.get("CK_JVM_FLAGS", _DEFAULT_JVM_FLAGS).split()
+
+
+def run_ck(repo_path, output_path, ck_dir, timeout_seconds=None):
     ck_jar_path = resolve_ck_jar_path(ck_dir)
 
     # Verifica se o caminho de saída existe, se não, cria
     if not os.path.exists(output_path):
         os.makedirs(output_path)
 
-    # Monta o comando Java para executar o CK
+    # Monta o comando Java com flags de otimização da JVM.
     command = [
-        "java", "-jar", ck_jar_path,
+        "java",
+        *CK_JVM_FLAGS,
+        "-jar", ck_jar_path,
         repo_path,
         "true",
         "0",
@@ -23,15 +30,24 @@ def run_ck(repo_path, output_path, ck_dir):
     ]
 
     try:
-        # Executa o comando Java
-        subprocess.run(command, check=True)
-        print(f"Análise concluída para o repositório {repo_path}. Resultados em {output_path}")
+        # Executa o comando Java suprimindo stdout para reduzir I/O.
+        subprocess.run(
+            command,
+            check=True,
+            timeout=timeout_seconds,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.PIPE,
+        )
+        print(f"[OK] CK concluido para {Path(repo_path).name}")
+        return True
     except subprocess.CalledProcessError as e:
-        # Captura qualquer erro de execução do subprocess
-        print(f"Erro ao executar o CK para o repositório {repo_path}: {e}")
+        stderr_msg = (e.stderr or b"").decode(errors="replace")[:300]
+        print(f"[ERRO] Erro CK para {Path(repo_path).name}: {stderr_msg}")
+    except subprocess.TimeoutExpired:
+        print(f"[TIMEOUT] Timeout CK para {Path(repo_path).name}")
     except Exception as e:
-        # Captura qualquer outra exceção
-        print(f"Erro inesperado ao rodar o CK para o repositório {repo_path}: {e}")
+        print(f"[!] Erro inesperado CK para {Path(repo_path).name}: {e}")
+    return False
 
 
 def resolve_ck_jar_path(ck_dir):
@@ -71,7 +87,7 @@ def summarize_ck_results(output_path, repo_prefix=None):
 
         # Verificar se o arquivo não está vazio antes de tentar ler
         if os.path.getsize(file_path) == 0:
-            print(f"⚠ O arquivo {file_path.name} está vazio e foi ignorado.")
+            print(f"[!] O arquivo {file_path.name} esta vazio e foi ignorado.")
             continue  # Ignora o arquivo vazio
         
         try:
@@ -86,12 +102,12 @@ def summarize_ck_results(output_path, repo_prefix=None):
                 metrics_summary["Média DIT (Classes)"] = df["dit"].mean()
                 metrics_summary["Média LCOM (Classes)"] = df["lcom"].mean()
             else:
-                print(f"⚠ O arquivo {file_path.name} não contém as colunas esperadas.")
+                print(f"[!] O arquivo {file_path.name} nao contem as colunas esperadas.")
         elif "method" in file_path.name:
             if "cbo" in df.columns:
                 metrics_summary["Média CBO (Métodos)"] = df["cbo"].mean()
             else:
-                print(f"⚠ O arquivo {file_path.name} não contém a coluna 'cbo'.")
+                print(f"[!] O arquivo {file_path.name} nao contem a coluna 'cbo'.")
 
     return metrics_summary
 
