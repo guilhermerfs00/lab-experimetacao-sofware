@@ -82,8 +82,9 @@ REQUEST_TIMEOUT_CONNECT = float(os.environ.get("GITHUB_TIMEOUT_CONNECT", "10"))
 REQUEST_TIMEOUT_READ = float(os.environ.get("GITHUB_TIMEOUT_READ", "60"))
 REQUEST_MAX_RETRIES = int(os.environ.get("GITHUB_MAX_RETRIES", "8"))
 REQUEST_BACKOFF_SECONDS = float(os.environ.get("GITHUB_BACKOFF_SECONDS", "3.0"))
-CK_MAX_WORKERS = int(os.environ.get("CK_MAX_WORKERS", str(max(4, (os.cpu_count() or 4) - 1))))
+CK_MAX_WORKERS = int(os.environ.get("CK_MAX_WORKERS", str(max(6, (os.cpu_count() or 4)))))
 CK_TIMEOUT_SECONDS = int(os.environ.get("CK_TIMEOUT_SECONDS", "600"))
+GITHUB_BATCH_SIZE_DEFAULT = 100  # Maximo permitido pelo GraphQL
 
 # Limite máximo de caminho para Windows
 MAX_PATH_LENGTH = 260
@@ -94,11 +95,11 @@ def _build_http_session():
     session = requests.Session()
 
     retry = Retry(
-        total=2,
-        connect=2,
-        read=2,
-        backoff_factor=1.0,
-        status_forcelist=[429],         # so 429 (rate limit) no nivel urllib3
+        total=4,
+        connect=3,
+        read=3,
+        backoff_factor=2.0,
+        status_forcelist=[429, 502, 503, 504],  # rate limit + server errors
         allowed_methods=frozenset(["POST"]),
         respect_retry_after_header=True,
     )
@@ -174,7 +175,7 @@ def fetchRepositories(start, end, cursor=None, return_page_state=False):
     if totalRepos == 0:
         return ([], cursor, False) if return_page_state else []
 
-    base_batch_size = int(os.environ.get("GITHUB_BATCH_SIZE", "30"))
+    base_batch_size = int(os.environ.get("GITHUB_BATCH_SIZE", str(GITHUB_BATCH_SIZE_DEFAULT)))
     batch_size = max(1, min(100, base_batch_size))
 
     chamada = 0
@@ -195,13 +196,8 @@ def fetchRepositories(start, end, cursor=None, return_page_state=False):
             print("[!] Nenhum repositorio retornado nesta pagina.")
             break
 
-        # Mantém o filtro educacional para não alterar o comportamento atual.
-        filtered_repos = [
-            repo for repo in repositories
-            if not is_educational(repo.get("node", {}))
-        ]
-
-        allRepos.extend(filtered_repos)
+        # Tópicos educacionais já excluídos na query GraphQL; sem filtro adicional.
+        allRepos.extend(repositories)
         print(f"[OK] Chamada {chamada} concluida ({len(allRepos)}/{totalRepos} repositorios coletados)\n")
 
     result = allRepos[:totalRepos]
@@ -244,7 +240,7 @@ def coletar_e_processar_repositorios(start, end, max_workers=None, ck_timeout_se
     while len(all_rows) < target_repos and has_next_page:
         lote += 1
         remaining = target_repos - len(all_rows)
-        fetch_target = min(200, max(remaining, remaining * 2))
+        fetch_target = min(1000, max(remaining * 5, 500))  # Buscar agressivamente para compensar filtros
 
         print(f"\n>> Lote {lote}: buscando candidatos para completar {remaining} analises restantes...")
         repositories, cursor, has_next_page = fetchRepositories(
@@ -385,8 +381,8 @@ def _post_graphql_with_retry(payload):
     return None
 
 def is_educational(repo):
-    """Filtro leve: exclui apenas por nome do repo (tópicos já excluídos na query GraphQL)."""
-    keywords = ["tutorial", "example", "guide", "learning", "course", "demo", "how-to"]
+    """Filtro minimo: exclui apenas repos cujo nome indica claramente material didatico."""
+    keywords = ["tutorial", "course"]
     name = repo.get("name", "").lower()
     return any(keyword in name for keyword in keywords)
 

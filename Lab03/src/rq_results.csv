@@ -1,0 +1,13 @@
+RQ,Relacao,Spearman rho,p-valor,Significativo (p<0.05)
+RQ01,Tamanho (arquivos) x Status do PR,0.0734,0.0,YES
+RQ01b,Tamanho (linhas)   x Status do PR,0.0391,0.0,YES
+RQ02,Tempo de Analise   x Status do PR,-0.217,0.0,YES
+RQ03,Descricao          x Status do PR,0.1165,0.0,YES
+RQ04,Participantes      x Status do PR,-0.1089,0.0,YES
+RQ04b,Comentarios        x Status do PR,-0.0313,0.0,YES
+RQ05,Tamanho (arquivos) x Nr Revisoes,0.2467,0.0,YES
+RQ05b,Tamanho (linhas)   x Nr Revisoes,0.2942,0.0,YES
+RQ06,Tempo de Analise   x Nr Revisoes,0.1346,0.0,YES
+RQ07,Descricao          x Nr Revisoes,0.194,0.0,YES
+RQ08,Participantes      x Nr Revisoes,0.3454,0.0,YES
+RQ08b,Comentarios        x Nr Revisoes,0.3101,0.0,YES
