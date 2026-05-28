@@ -21626,7 +21626,7 @@ cryptomator/cryptomator,3858,New Crowdin updates,MERGED,Sim,2025-05-17T12:54:26Z
 cryptomator/cryptomator,3840,Bump wlixcc/SFTP-Deploy-Action from 1.2.5 to 1.2.6 in the github-actions group,MERGED,Sim,2025-05-01T16:34:46Z,2025-06-11T10:32:58Z,2025-06-11T10:32:58Z,977.97,1,0,2,1,1,1,dependabot,Não,Não convencional,,Não
 cryptomator/cryptomator,3837,Feature: Use user and system certificate stores on macOS,MERGED,Sim,2025-04-29T14:33:13Z,2025-04-29T15:02:15Z,2025-04-29T15:02:15Z,0.48,7,6,1,197,1,2,infeo,Não,Não convencional,,Não
 cryptomator/cryptomator,3825,Build installers for Windows ARM64,MERGED,Sim,2025-04-21T11:39:12Z,2025-06-11T10:17:04Z,2025-06-11T10:17:04Z,1222.63,6,28,11,133,55,3,purejava,Não,Não convencional,,Não
-cryptomator/cryptomator,3821,Feature: Vault Recovery Enhancements ,MERGED,Sim,2025-04-17T08:51:19Z,2025-10-16T14:36:58Z,2025-10-16T14:36:58Z,4373.76,107,46,5,1736,256,48,mindmonk,Não,Não convencional,,Não
+cryptomator/cryptomator,3821,Feature: Vault Recovery Enhancements,MERGED,Sim,2025-04-17T08:51:19Z,2025-10-16T14:36:58Z,2025-10-16T14:36:58Z,4373.76,107,46,5,1736,256,48,mindmonk,Não,Não convencional,,Não
 cryptomator/cryptomator,3819,New Crowdin updates,MERGED,Sim,2025-04-15T12:25:34Z,2025-04-29T08:55:33Z,2025-04-29T08:55:34Z,332.5,19,0,0,72,3,13,cryptobot,Não,Não convencional,,Não
 cryptomator/cryptomator,3817,CI: Update and split up anti virus whitelisting flow,MERGED,Sim,2025-04-14T13:58:49Z,2025-04-14T14:09:23Z,2025-04-14T14:09:23Z,0.18,7,1,1,58,10,2,infeo,Sim,ci,,Não
 cryptomator/cryptomator,4209,Bump the maven-dependencies group with 3 updates,CLOSED,Não,2026-04-02T14:59:43Z,,2026-05-01T19:38:04Z,700.64,1,0,1,2,2,1,dependabot,Não,Não convencional,,Não

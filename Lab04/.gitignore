@@ -2,6 +2,10 @@
 .env.*
 !.env.example
 
+# Cloudflare tunnel temporário
+.pids
+.cloudflared.log
+
 .venv/
 venv/
 env/
