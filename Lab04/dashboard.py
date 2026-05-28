@@ -395,44 +395,8 @@ if True:
     fig_adocao.update_traces(textposition="outside")
     st.plotly_chart(fig_adocao, use_container_width=True)
 
-# Comparação de métricas de qualidade CC vs Não-CC
-st.subheader("Métricas de Qualidade: CC vs Não-CC")
-metricas = ["review_count", "commits_count", "comment_count", "changed_files"]
-labels   = ["Reviews",      "Commits",       "Comentários",   "Arquivos alterados"]
-
-qual_df = (
-    dff.groupby("is_cc")[metricas]
-    .median()
-    .T
-    .reset_index()
-)
-qual_df.columns = ["Métrica", "Não Convencional", "Convencional"]
-qual_df["Métrica"] = labels
-
-fig_qual = go.Figure()
-fig_qual.add_trace(go.Bar(
-    name="Convencional",
-    x=qual_df["Métrica"], y=qual_df["Convencional"],
-    marker_color=COR_CC,
-))
-fig_qual.add_trace(go.Bar(
-    name="Não Convencional",
-    x=qual_df["Métrica"], y=qual_df["Não Convencional"],
-    marker_color=COR_NAO_CC,
-))
-fig_qual.update_layout(
-    barmode="group",
-    title="Mediana das Métricas de Qualidade por Categoria",
-    yaxis_title="Valor mediano",
-)
-st.plotly_chart(fig_qual, use_container_width=True)
-
 st.caption(
-    "O ranking mostra os 20 repositórios com maior proporção de PRs convencionais. "
-    "O scatter relaciona adoção de CC com taxa de merge — cada ponto é um repositório, "
-    "o tamanho indica volume de PRs e a cor reflete a média de revisões. "
-    "As barras agrupadas comparam a mediana de reviews, commits, comentários e arquivos alterados "
-    "entre PRs convencionais e não convencionais, revelando se o padrão está associado a PRs mais elaborados."
+    "O ranking mostra os 20 repositórios com maior proporção de PRs convencionais."
 )
 
 # ──────────────────────────────────────────────────────────────────────────────
