@@ -78,14 +78,16 @@ apis_sel = st.sidebar.multiselect(
     default=["REST", "GraphQL"],
 )
 
-remove_outliers = st.sidebar.checkbox("Remover outliers (> 3σ)", value=False)
+remove_outliers = st.sidebar.checkbox("Remover outliers (IQR × 1,5)", value=True)
 
 dff = df[df["scenario_label"].isin(cenarios_sel) & df["api_type"].isin(apis_sel)].copy()
 
 if remove_outliers:
     for col in ["response_time_ms", "response_size_bytes"]:
-        z = (dff[col] - dff[col].mean()) / dff[col].std()
-        dff = dff[z.abs() <= 3]
+        q1 = dff[col].quantile(0.25)
+        q3 = dff[col].quantile(0.75)
+        iqr = q3 - q1
+        dff = dff[(dff[col] >= q1 - 1.5 * iqr) & (dff[col] <= q3 + 1.5 * iqr)]
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Cabeçalho
@@ -234,19 +236,29 @@ tab_rq1_box, tab_rq1_violin, tab_rq1_bar, tab_rq1_tabela = st.tabs(
 with tab_rq1_box:
     fig = px.box(
         dff,
-        x="scenario_label",
+        x="api_type",
         y="response_time_ms",
         color="api_type",
+        facet_col="scenario_label",
+        facet_col_wrap=2,
         color_discrete_map={"REST": COR_REST, "GraphQL": COR_GRAPHQL},
         labels={
-            "scenario_label":    "Cenário",
-            "response_time_ms":  "Tempo de Resposta (ms)",
             "api_type":          "API",
+            "response_time_ms":  "Tempo (ms)",
+            "scenario_label":    "Cenário",
         },
-        title="Distribuição do Tempo de Resposta por Cenário e Tipo de API",
-        points="outliers",
+        title="Tempo de Resposta por Cenário — REST vs GraphQL (escala log)",
+        points="all",
+        log_y=True,
     )
-    fig.update_layout(boxmode="group", height=480)
+    fig.update_layout(
+        height=600,
+        showlegend=False,
+        boxgap=0.3,
+        boxgroupgap=0.2,
+    )
+    fig.update_yaxes(title_text="log(ms)", matches=None, showticklabels=True)
+    fig.for_each_annotation(lambda a: a.update(text=a.text.split("=")[-1]))
     st.plotly_chart(fig, use_container_width=True)
 
 with tab_rq1_violin:
@@ -332,19 +344,29 @@ tab_rq2_box, tab_rq2_violin, tab_rq2_bar, tab_rq2_tabela = st.tabs(
 with tab_rq2_box:
     fig = px.box(
         dff,
-        x="scenario_label",
+        x="api_type",
         y="response_size_bytes",
         color="api_type",
+        facet_col="scenario_label",
+        facet_col_wrap=2,
         color_discrete_map={"REST": COR_REST, "GraphQL": COR_GRAPHQL},
         labels={
-            "scenario_label":       "Cenário",
-            "response_size_bytes":  "Tamanho da Resposta (bytes)",
             "api_type":             "API",
+            "response_size_bytes":  "Tamanho (bytes)",
+            "scenario_label":       "Cenário",
         },
-        title="Distribuição do Tamanho da Resposta por Cenário e Tipo de API",
-        points="outliers",
+        title="Tamanho da Resposta por Cenário — REST vs GraphQL (escala log)",
+        points="all",
+        log_y=True,
     )
-    fig.update_layout(boxmode="group", height=480)
+    fig.update_layout(
+        height=600,
+        showlegend=False,
+        boxgap=0.3,
+        boxgroupgap=0.2,
+    )
+    fig.update_yaxes(title_text="log(bytes)", matches=None, showticklabels=True)
+    fig.for_each_annotation(lambda a: a.update(text=a.text.split("=")[-1]))
     st.plotly_chart(fig, use_container_width=True)
 
 with tab_rq2_violin:
